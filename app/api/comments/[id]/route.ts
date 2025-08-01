@@ -2,18 +2,13 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 import type { Comment } from "@/lib/models/Comment"
-import { verifyToken } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
     const { id } = params
@@ -36,7 +31,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    if (comment.userId.toString() !== user._id && user.userType !== "admin") {
+    const isOwner = comment.userId.toString() === user._id.toString()
+    const isAdmin = user.userType === "admin"
+
+    if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Not authorized to edit this comment" }, { status: 403 })
     }
 
@@ -47,7 +45,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           content: content.trim(),
           updatedAt: new Date(),
         },
-      },
+      }
     )
 
     const updatedComment = await collection.findOne({ _id: new ObjectId(id) })
@@ -60,14 +58,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
     const { id } = params
@@ -83,11 +76,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    if (comment.userId.toString() !== user._id && user.userType !== "admin") {
+    const isOwner = comment.userId.toString() === user._id.toString()
+    const isAdmin = user.userType === "admin"
+
+    if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Not authorized to delete this comment" }, { status: 403 })
     }
 
-    // Delete comment and all its replies
+    // Delete the comment and its replies
     await collection.deleteMany({
       $or: [{ _id: new ObjectId(id) }, { parentId: new ObjectId(id) }],
     })

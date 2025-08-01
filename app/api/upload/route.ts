@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { existsSync } from "fs"
 import { getDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
+import { parseBuffer } from "music-metadata"
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,25 +78,49 @@ export async function POST(request: NextRequest) {
       const filepath = join(uploadDir, filename)
       await writeFile(filepath, buffer)
 
-      return `/uploads/${type}/${filename}`
+      return { url: `/uploads/${type}/${filename}`, buffer }
     }
 
-    const audioUrl = await saveFile(audioFile, "audio")
-    const imageUrl = imageFile ? await saveFile(imageFile, "image") : undefined
+    // Сохраняем аудио и сразу получаем буфер для анализа
+    const savedAudio = await saveFile(audioFile, "audio")
+
+    // Анализируем длительность аудио
+    let duration = 0
+    try {
+      const metadata = await parseBuffer(savedAudio.buffer, audioFile.type, { duration: true })
+      duration = Math.floor(metadata.format.duration || 0)
+    } catch (err) {
+      console.warn("Failed to parse audio metadata for duration:", err)
+      duration = 0
+    }
+
+    // Сохраняем изображение (если есть)
+    const savedImage = imageFile ? await saveFile(imageFile, "image") : undefined
 
     // === Save to MongoDB ===
     const db = await getDatabase()
     const songsCollection = db.collection("songs")
 
+    // Получаем имя артиста из коллекции users
+    const usersCollection = db.collection("users")
+    const userDoc = await usersCollection.findOne(
+      { _id: new ObjectId(user._id) },
+      { projection: { firstName: 1, lastName: 1, name: 1 } }
+    )
+    const artistName =
+      userDoc?.firstName && userDoc?.lastName
+        ? `${userDoc.firstName} ${userDoc.lastName}`
+        : userDoc?.name || "Unknown Artist"
+
     const newSong = {
       title,
       genre,
       artist: new ObjectId(user._id),
-      artistName: user.name || "Unknown Artist",
+      artistName,
       albumName: albumTitle || undefined,
-      audioUrl,
-      imageUrl,
-      duration: 0, // можно позже заменить после анализа аудио
+      audioUrl: savedAudio.url,
+      imageUrl: savedImage?.url,
+      duration,
       lyrics: "",
       plays: 0,
       likes: [],
@@ -109,8 +134,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: "Song uploaded and saved as draft",
       songId: insertResult.insertedId,
-      audioUrl,
-      imageUrl,
+      audioUrl: savedAudio.url,
+      imageUrl: savedImage?.url,
+      duration,
     })
   } catch (error) {
     console.error("Upload failed:", error)

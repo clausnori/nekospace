@@ -2,16 +2,11 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 import type { Report, CreateReportData } from "@/lib/models/Report"
-import { verifyToken } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user || user.userType !== "admin") {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
@@ -29,7 +24,12 @@ export async function GET(request: NextRequest) {
     if (status) filter.status = status
     if (targetType) filter.targetType = targetType
 
-    const reports = await collection.find(filter).sort({ createdAt: -1 }).limit(limit).skip(skip).toArray()
+    const reports = await collection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .toArray()
 
     const total = await collection.countDocuments(filter)
 
@@ -46,14 +46,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
     const body = await request.json()
@@ -70,7 +65,7 @@ export async function POST(request: NextRequest) {
     const db = await getDatabase()
     const collection = db.collection<Report>("reports")
 
-    // Check if user already reported this item
+    // Prevent duplicate reports from same user on same item
     const existingReport = await collection.findOne({
       reporterId: new ObjectId(user._id),
       targetId: new ObjectId(targetId),

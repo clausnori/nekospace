@@ -2,18 +2,13 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 import type { Comment } from "@/lib/models/Comment"
-import { verifyToken } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
     const { id } = params
@@ -33,11 +28,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const isLiked = comment.likes.some((like) => like.toString() === userId.toString())
 
     if (isLiked) {
-      // Unlike
-      await collection.updateOne({ _id: new ObjectId(id) }, { $pull: { likes: userId } })
+      // Удалить лайк
+      await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $pull: { likes: userId }, $set: { updatedAt: new Date() } }
+      )
     } else {
-      // Like
-      await collection.updateOne({ _id: new ObjectId(id) }, { $addToSet: { likes: userId } })
+      // Добавить лайк
+      await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $addToSet: { likes: userId }, $set: { updatedAt: new Date() } }
+      )
     }
 
     const updatedComment = await collection.findOne({ _id: new ObjectId(id) })

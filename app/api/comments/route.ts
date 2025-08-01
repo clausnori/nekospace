@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
+import { getDatabase } from "@/lib/mongodb"
+import { getCurrentUser } from "@/lib/auth"
 import type { Comment, CreateCommentData } from "@/lib/models/Comment"
-import { verifyToken } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,21 +21,25 @@ export async function GET(request: NextRequest) {
     const comments = await collection
       .find({
         songId: new ObjectId(songId),
-        parentId: { $exists: false }, // Only top-level comments
+        parentId: { $exists: false }, // Только корневые комментарии
       })
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)
       .toArray()
 
-    // Get replies for each comment
+    // Добавляем ответы на каждый комментарий
     const commentsWithReplies = await Promise.all(
       comments.map(async (comment) => {
-        const replies = await collection.find({ parentId: comment._id }).sort({ createdAt: 1 }).limit(5).toArray()
+        const replies = await collection
+          .find({ parentId: comment._id })
+          .sort({ createdAt: 1 })
+          .limit(5)
+          .toArray()
 
         return {
           ...comment,
-          replies: replies,
+          replies,
         }
       }),
     )
@@ -58,14 +62,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    }
-
-    const user = await verifyToken(token)
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
     const body = await request.json()
