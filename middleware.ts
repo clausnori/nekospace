@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Проверка наличия токена
-  const token = request.cookies.get("auth-token")?.value
+  const token = request.cookies.get("token")?.value
 
   if (!token) {
     const loginUrl = new URL("/login", request.url)
@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
 
     // Невалидный токен — удаляем куку и редиректим на логин
     const response = NextResponse.redirect(new URL("/login", request.url))
-    response.cookies.delete("auth-token")
+    response.cookies.delete("token")
     return response
   }
 }

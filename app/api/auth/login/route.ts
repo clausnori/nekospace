@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Устанавливаем куку с токеном
     response.cookies.set({
-      name: "auth-token",
+      name: "token",
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
