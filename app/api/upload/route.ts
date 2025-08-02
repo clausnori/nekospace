@@ -105,12 +105,9 @@ export async function POST(request: NextRequest) {
     const usersCollection = db.collection("users")
     const userDoc = await usersCollection.findOne(
       { _id: new ObjectId(user._id) },
-      { projection: { firstName: 1, lastName: 1, name: 1 } }
+      { projection: { username: 1 } }
     )
-    const artistName =
-      userDoc?.firstName && userDoc?.lastName
-        ? `${userDoc.firstName} ${userDoc.lastName}`
-        : userDoc?.name || "Unknown Artist"
+    const artistName = `${userDoc.username}`|| "Unknown Artist"
 
     const newSong = {
       title,

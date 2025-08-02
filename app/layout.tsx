@@ -9,7 +9,7 @@ import MusicPlayerWrapper from "@/components/music-player-wrapper"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "NekoSpaces - Discover Your Next Favorite Track",
+  title: "NekoSpaces",
   description: "Stream millions of songs, discover new artists, and create your perfect playlist on NekoSpaces",
   keywords: "music, streaming, playlist, artists, songs, albums, electronic, synthwave, ambient",
   authors: [{ name: "NekoSpaces Team" }],
@@ -28,7 +28,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
