@@ -30,10 +30,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (!comment) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
-    if (!user._id) {
-      return NextResponse.json({ error: "User ID missing" }, { status: 400 })
-    }
-    const isOwner = comment.userId.toString() === user._id.toString()
+    
+    const isOwner = user?._id && comment.userId.toString() === user._id.toString()
+    
     const isAdmin = user.userType === "admin"
 
     if (!isOwner && !isAdmin) {
@@ -78,7 +77,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    const isOwner = comment.userId.toString() === user._id.toString()
+    const isOwner = user?._id && comment.userId.toString() === user._id.toString()
     const isAdmin = user.userType === "admin"
 
     if (!isOwner && !isAdmin) {
