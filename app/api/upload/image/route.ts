@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser()
 
-    if (!user) {
+    if (!user || !user._id) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await imageFile.arrayBuffer())
     const timestamp = Date.now()
     const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
-    const filename = `${user._id}_${timestamp}_${safeName}`
-    const uploadDir = join(process.cwd(), "public", "artist")
+    const filename = `${user._id.toString()}_${timestamp}_${safeName}`
+    const uploadDir = join(process.cwd(), "public", "uploads", "image")
 
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const filepath = join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
-    const imageUrl = `public/artist/${filename}`
+    const imageUrl = `/uploads/image/${filename}`
 
     return NextResponse.json({ message: "Image uploaded", imageUrl })
   } catch (err) {

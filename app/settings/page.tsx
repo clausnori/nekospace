@@ -146,7 +146,7 @@ export default function SettingsPage() {
 
       // Upload new image if selected
       if (imageFile) {
-        const uploadedUrl = await uploadImage()
+        const uploadedUrl = await uploadImage(imageFile)
         if (uploadedUrl) {
           imageUrl = uploadedUrl
         }
