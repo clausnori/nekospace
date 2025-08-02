@@ -174,7 +174,7 @@ export default function ArtistsPage() {
                         <div className="relative mb-4">
                           <Image
                             src={
-                              artist.profileImage ||`/uploads/image/${artist.profileImage}`||
+                              `/uploads/image/${artist.profileImage}`||
                               `/placeholder.svg?height=200&width=200&text=${
                                 encodeURIComponent(artist.firstName + " " + artist.lastName) || "/placeholder.svg"
                               }`

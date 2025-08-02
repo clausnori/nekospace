@@ -181,7 +181,7 @@ export default function ProfilePage() {
           <div className="relative">
             <Image
               src={
-                user.profileImage || `/uploads/image/${user.profileImage}`||
+                `/uploads/image/${user.profileImage}`||
                 `/placeholder.svg?height=200&width=200&text=${encodeURIComponent(user.firstName + " " + user.lastName) || "/placeholder.svg"}`
               }
               alt={user.firstName + " " + user.lastName}
