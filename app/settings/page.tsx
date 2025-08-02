@@ -114,28 +114,26 @@ export default function SettingsPage() {
     }
   }
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return null
+  const uploadImage = async (imageFile: File): Promise<string | null> => {
+  const formData = new FormData()
+  formData.append("imageFile", imageFile)
 
-    const formData = new FormData()
-    formData.append("file", imageFile)
-    formData.append("type", "image")
+  try {
+    const response = await fetch("/api/upload/image", {
+      method: "POST",
+      body: formData,
+    })
 
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        return data.url
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error)
+    if (response.ok) {
+      const data = await response.json()
+      return data.imageUrl
     }
-    return null
+  } catch (error) {
+    console.error("Error uploading image:", error)
   }
+
+  return null
+}
 
   const saveProfile = async () => {
     if (!user) return
