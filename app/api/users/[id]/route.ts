@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json({ user })
   } catch (error) {
-    console.error("Error fetching user:", error)
+    console.error("Error fetching user[users[id]:", error)
     return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 })
   }
 }
