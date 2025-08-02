@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const filepath = join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
-    const imageUrl = `/artist/${filename}`
+    const imageUrl = `public/artist/${filename}`
 
     return NextResponse.json({ message: "Image uploaded", imageUrl })
   } catch (err) {
