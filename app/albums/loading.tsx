@@ -7,6 +7,8 @@ export default function AlbumsLoading() {
       <header className="border-b border-gray-800 bg-black/95 backdrop-blur">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+          
+          
             <div className="h-8 w-32 bg-gray-700 rounded animate-pulse"></div>
             <div className="flex items-center space-x-4">
               <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
