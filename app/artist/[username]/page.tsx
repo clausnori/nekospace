@@ -298,7 +298,7 @@ export default function ArtistPage({ params }: { params: { username: string } })
             <div className="relative">
               <Image
                 src={
-                  `/uploads/image/${artist.profileImage}`||
+                  artist.profileImage  ||
                   `/placeholder.svg?height=300&width=300&text=${
                     encodeURIComponent(artist.firstName + " " + artist.lastName) || "/placeholder.svg"
                   }`
