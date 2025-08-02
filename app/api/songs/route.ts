@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     const newSong: Omit<Song, "_id"> = {
       ...songData,
       artist: new ObjectId(user._id),
-      artistName: `${user.firstName} ${user.lastName}`,
+      artistName: `${user.username}`,
       plays: 0,
       likes: [],
       status: "draft", // New songs start as drafts
