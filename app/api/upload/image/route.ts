@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now()
     const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
     const filename = `${user._id}_${timestamp}_${safeName}`
-    const uploadDir = join(process.cwd(), "public", "uploads", "image")
+    const uploadDir = join(process.cwd(), "public", "artist")
 
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const filepath = join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
-    const imageUrl = `/uploads/image/${filename}`
+    const imageUrl = `/artist/${filename}`
 
     return NextResponse.json({ message: "Image uploaded", imageUrl })
   } catch (err) {
