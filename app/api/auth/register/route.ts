@@ -3,6 +3,7 @@ import { getDatabase } from "@/lib/mongodb"
 import { hashPassword, createToken, setAuthCookie } from "@/lib/auth"
 import type { User, CreateUserData } from "@/lib/models/User"
 
+
 export async function POST(request: NextRequest) {
   try {
     const body: CreateUserData = await request.json()

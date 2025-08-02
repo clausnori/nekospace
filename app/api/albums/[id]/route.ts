@@ -1,7 +1,9 @@
+
 import { type NextRequest, NextResponse } from "next/server"
 import { getDatabase } from "@/lib/mongodb"
 import type { Album } from "@/lib/models/Album"
 import { ObjectId } from "mongodb"
+
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
