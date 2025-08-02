@@ -4,10 +4,10 @@ const nextConfig = {
     serverComponentsExternalPackages: ['bcryptjs']
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     domains: ['placeholder.svg'],
