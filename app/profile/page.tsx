@@ -180,16 +180,15 @@ export default function ProfilePage() {
         <div className="flex flex-col md:flex-row items-start gap-8 mb-8">
           <div className="relative">
             <Image
-  src={
-    imagePreview ||
-    profileData.profileImage ||
-    `/uploads/image/${filename}`
-  }
-  alt="Profile"
-  width={100}
-  height={100}
-  className="rounded-full aspect-square object-cover"
-/>
+              src={
+                user.profileImage || `/uploads/image/${filename}`||
+                `/placeholder.svg?height=200&width=200&text=${encodeURIComponent(user.firstName + " " + user.lastName) || "/placeholder.svg"}`
+              }
+              alt={user.firstName + " " + user.lastName}
+              width={200}
+              height={200}
+              className="rounded-full aspect-square object-cover"
+            />
             <Button
               size="icon"
               className="absolute bottom-2 right-2 bg-gray-800 hover:bg-gray-700 border-2 border-gray-600"
