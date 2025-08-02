@@ -247,7 +247,7 @@ export default function DiscoverPage() {
                           <div className="relative mb-3 md:mb-4">
                             <Image
                               src={
-                                `/uploads/image/${artist.profileImage}` ||
+                                artist.profileImage ||
                                 `/placeholder.svg?height=120&width=120&text=${
                                   encodeURIComponent(artist.firstName + " " + artist.lastName) || "/placeholder.svg"
                                 }`
