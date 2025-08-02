@@ -2,14 +2,13 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['bcryptjs'],
-    strictMode: true
     
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     domains: ['placeholder.svg'],
