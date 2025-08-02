@@ -71,7 +71,7 @@ export default function AlbumsPage() {
         setFilteredAlbums(publishedAlbums)
 
         // Extract unique genres
-        const uniqueGenres = Array.from(new Set(publishedAlbums.map((album: Album) => album.genre)))
+        const uniqueGenres = Array.from(new Set<string>(publishedAlbums.map((album: Album) => album.genre)))
         setGenres(uniqueGenres)
       }
     } catch (error) {
